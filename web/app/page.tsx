@@ -523,7 +523,15 @@ export default function AISecurityAgent() {
                       <SelectContent className="bg-black border-green-500/20">
                         <SelectItem value="llama3.2:latest">Llama 3.2 (Recommended)</SelectItem>
                         <SelectItem value="llama3.1:latest">Llama 3.1</SelectItem>
+                        <SelectItem value="llama3:latest">Llama 3</SelectItem>
+                        <SelectItem value="llama3:8b">Llama 3 8B</SelectItem>
+                        <SelectItem value="llama3:70b">Llama 3 70B</SelectItem>
                         <SelectItem value="codellama:latest">CodeLlama</SelectItem>
+                        <SelectItem value="codellama:7b">CodeLlama 7B</SelectItem>
+                        <SelectItem value="codellama:13b">CodeLlama 13B</SelectItem>
+                        <SelectItem value="mistral:latest">Mistral</SelectItem>
+                        <SelectItem value="gemma:latest">Gemma</SelectItem>
+                        <SelectItem value="phi3:latest">Phi-3</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
