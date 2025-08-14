@@ -53,7 +53,7 @@ def main(
     timeout_ms: int = typer.Option(8000, "--timeout-ms", help="Request timeout (ms)"),
     report: str = typer.Option("both", "--report", help="Report format: md|html|both"),
     ollama_model: str = typer.Option("llama3", "--ollama-model", help="Ollama model name"),
-
+    use_modal: bool = typer.Option(False, "--use-modal", help="Use Modal for distributed cloud testing"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose output"),
 ) -> None:
     """Run codebase+API security analysis."""
@@ -72,6 +72,44 @@ def main(
     console.print(f"📁 Artifacts will be saved to: {run_dir}", style="blue")
     
     try:
+        # Check if using Modal for distributed testing
+        if use_modal:
+            console.print("🌩️ Using Modal for distributed cloud testing...", style="magenta bold")
+            
+            # Import and run Modal execution
+            try:
+                import sys
+                import subprocess
+                
+                # Run Modal app with parameters
+                modal_result = subprocess.run([
+                    sys.executable, "modal_app.py",
+                    "--repo-url", repo,
+                    "--base-url", base_url,
+                    "--auth-header", auth_header or "",
+                    "--unsafe", str(unsafe).lower(),
+                    "--concurrency", str(concurrency),
+                    "--delay-ms", str(delay_ms)
+                ], capture_output=True, text=True, cwd=Path.cwd())
+                
+                if modal_result.returncode != 0:
+                    console.print(f"❌ Modal execution failed: {modal_result.stderr}", style="red")
+                    console.print("🔄 Falling back to local execution...", style="yellow")
+                    use_modal = False
+                else:
+                    console.print("✅ Modal distributed testing completed!", style="green")
+                    console.print(modal_result.stdout)
+                    return
+                    
+            except ImportError:
+                console.print("❌ Modal not available, falling back to local execution", style="yellow")
+                use_modal = False
+            except Exception as e:
+                console.print(f"❌ Modal execution error: {e}", style="red")
+                console.print("🔄 Falling back to local execution...", style="yellow")
+                use_modal = False
+        
+        # Local execution path (original logic)
         # Step 1: Ingest repository
         console.print("\n📥 [1/6] Ingesting repository...", style="cyan bold")
         ingestor = RepoIngestor(run_dir, verbose=verbose)
